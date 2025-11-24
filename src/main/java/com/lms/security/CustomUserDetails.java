@@ -43,7 +43,7 @@ public class CustomUserDetails implements UserDetails {
                 user.getEmail(),
                 user.getPasswordHash(),
                 authorities,
-                user.getStatus() == User.UserStatus.ACTIVE,
+                user.getStatus() == User.UserStatus.active,
                 user.getEmailVerified()
         );
     }

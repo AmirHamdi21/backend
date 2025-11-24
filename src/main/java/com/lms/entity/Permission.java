@@ -1,5 +1,6 @@
 package com.lms.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,7 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "permissions")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,5 +36,8 @@ public class Permission {
     private LocalDateTime createdAt;
     
     @ManyToMany(mappedBy = "permissions")
+    @Builder.Default
+    @ToString.Exclude
+    @JsonBackReference
     private Set<Role> roles = new HashSet<>();
 }

@@ -1,10 +1,8 @@
 package com.lms.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,7 +11,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "roles")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,20 +33,22 @@ public class Role {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    // Many-to-Many relationship with User
     @ManyToMany(mappedBy = "roles")
+    @Builder.Default
+    @ToString.Exclude
+    @JsonBackReference
     private Set<User> users = new HashSet<>();
     
-    // Many-to-Many relationship with Permission
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "role_permissions",
         joinColumns = @JoinColumn(name = "role_id"),
         inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
+    @Builder.Default
+    @ToString.Exclude
     private Set<Permission> permissions = new HashSet<>();
     
-    // Helper methods
     public void addPermission(Permission permission) {
         this.permissions.add(permission);
         permission.getRoles().add(this);

@@ -1,5 +1,6 @@
 package com.lms.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,7 +8,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sessions")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,6 +22,8 @@ public class Session {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @JsonBackReference
     private User user;
     
     @Column(name = "session_token", nullable = false, unique = true, length = 255)

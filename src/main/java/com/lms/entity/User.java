@@ -1,10 +1,8 @@
 package com.lms.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,7 +12,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -48,7 +47,7 @@ public class User {
     
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private UserStatus status = UserStatus.PENDING;
+    private UserStatus status = UserStatus.pending;
     
     @Column(name = "email_verified")
     private Boolean emailVerified = false;
@@ -67,36 +66,36 @@ public class User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
     
-    // Many-to-Many relationship with Role
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     @Builder.Default
+    @ToString.Exclude
+    @JsonManagedReference
     private Set<Role> roles = new HashSet<>();
     
-    // One-to-Many relationship with Session
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    @JsonManagedReference
     private Set<Session> sessions = new HashSet<>();
     
-    // One-to-One relationship with TwoFactorAuth
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private TwoFactorAuth twoFactorAuth;
     
-    // Soft delete check
     @Transient
     public boolean isDeleted() {
         return deletedAt != null;
     }
     
-    // Lifecycle callback to update last login
     public void updateLastLogin() {
         this.lastLoginAt = LocalDateTime.now();
     }
     
-    // Helper methods for roles
     public void addRole(Role role) {
         this.roles.add(role);
         role.getUsers().add(this);
@@ -108,6 +107,6 @@ public class User {
     }
     
     public enum UserStatus {
-        ACTIVE, INACTIVE, SUSPENDED, PENDING
+        active, inactive, suspended, pending
     }
 }
